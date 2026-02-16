@@ -61,21 +61,22 @@ h1 {
     margin-bottom: 30px;
 }
 
-/* Calendar grid */
+/* Calendar grid - responsive */
 .calendar {
     display: grid;
-    grid-template-columns: repeat(7, 1fr);
-    gap: 12px;
+    grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
+    gap: 8px;
     margin-bottom: 30px;
 }
 
 .day {
     background: rgba(255,255,255,0.15);
-    padding: 20px;
+    padding: 12px;
     border-radius: 15px;
     text-align: center;
     cursor: pointer;
     transition: transform 0.2s ease;
+    font-size: clamp(12px, 3vw, 16px);
 }
 
 .day:hover {
@@ -133,10 +134,11 @@ h1 {
 <body>
 
 <header>
-    Samiyah ❤️ Aiden 
+    Samiyah ❤️ Aiden
     <div id="subheader">All Our Planned Dates</div>
     <div id="datetime"></div>
 </header>
+
 <div class="container">
     <h1>February 2026 Calendar</h1>
 
