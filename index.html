@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>February Date Itineraries ❤️</title>
+
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Great+Vibes&family=Poppins:wght@400;600&display=swap');
+
+body {
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    min-height: 100vh;
+    background: radial-gradient(ellipse at bottom, #ff758c 0%, #ff7eb3 100%);
+    color: white;
+    overflow-x: hidden;
+    padding-top: 120px;
+}
+
+header {
+    position: fixed;
+    top: 0;
+    width: 100%;
+    background: rgba(255,105,180,0.85);
+    backdrop-filter: blur(8px);
+    padding: 15px 0;
+    font-size: clamp(32px,6vw,48px);
+    font-family: 'Great Vibes', cursive;
+    text-align: center;
+    z-index: 1000;
+}
+
+#subheader {
+    font-family: 'Poppins', sans-serif;
+    font-weight: 400;
+    font-size: clamp(18px, 4vw, 26px);
+    line-height: 1.7;
+    margin-top: 8px;
+    opacity: 0.9;
+}
+
+#datetime {
+    font-size: 14px;
+    opacity: 0.9;
+    font-family: 'Poppins', sans-serif;
+}
+
+.container {
+    max-width: 1000px;
+    margin: auto;
+    padding: 40px 20px;
+    background: rgba(255,255,255,0.1);
+    border-radius: 25px;
+    backdrop-filter: blur(20px);
+    box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+}
+
+h1 {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+/* Calendar grid */
+.calendar {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 12px;
+    margin-bottom: 30px;
+}
+
+.day {
+    background: rgba(255,255,255,0.15);
+    padding: 20px;
+    border-radius: 15px;
+    text-align: center;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.day:hover {
+    transform: scale(1.05);
+}
+
+.day.active {
+    background: rgba(255,105,180,0.6);
+}
+
+/* Itinerary cards */
+.card {
+    background: rgba(255,255,255,0.15);
+    padding: 20px;
+    border-radius: 18px;
+    margin-bottom: 20px;
+    text-align: center;
+    transition: transform 0.3s ease;
+}
+
+.card:hover {
+    transform: scale(1.03);
+}
+
+.time {
+    font-weight: 600;
+    font-size: 18px;
+    margin-bottom: 5px;
+}
+
+/* Floating hearts */
+.heart {
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    transform: rotate(45deg);
+    opacity: 0.7;
+}
+.heart:before,
+.heart:after {
+    content: "";
+    position: absolute;
+    width: 20px;
+    height: 20px;
+    background: red;
+    border-radius: 50%;
+}
+.heart:before { top: -10px; left: 0; }
+.heart:after { left: 10px; top: 0; }
+
+</style>
+</head>
+
+<body>
+
+<header>
+    Samiyah ❤️ Aiden 
+    <div id="subheader">All Our Planned Dates</div>
+    <div id="datetime"></div>
+</header>
+<div class="container">
+    <h1>February 2026 Calendar</h1>
+
+    <div class="calendar" id="calendar">
+        <!-- Days will be added by JS -->
+    </div>
+
+    <div id="itinerary">
+        <h2 id="itinerary-date">Select a day to see the itinerary</h2>
+        <div id="itinerary-cards"></div>
+    </div>
+</div>
+
+<script>
+// Live Date & Time
+function updateDateTime() {
+    const now = new Date();
+    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+    const date = now.toLocaleDateString(undefined, options);
+    const time = now.toLocaleTimeString();
+    document.getElementById("datetime").innerText = date + " | " + time;
+}
+setInterval(updateDateTime, 1000);
+updateDateTime();
+
+// Floating hearts
+function createHeart() {
+    const heart = document.createElement('div');
+    heart.classList.add('heart');
+    heart.style.left = Math.random() * window.innerWidth + 'px';
+    heart.style.top = window.innerHeight + 'px';
+    heart.style.position = 'fixed';
+    heart.style.animation = `floatUp 6s linear forwards`;
+    document.body.appendChild(heart);
+    setTimeout(() => heart.remove(), 6000);
+}
+setInterval(createHeart, 800);
+
+const style = document.createElement('style');
+style.innerHTML = `
+@keyframes floatUp {
+    from { transform: translateY(0) rotate(45deg); opacity: 1; }
+    to { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
+}`;
+document.head.appendChild(style);
+
+// Generate calendar days
+const calendarEl = document.getElementById("calendar");
+const itineraryEl = document.getElementById("itinerary-cards");
+const itineraryDateEl = document.getElementById("itinerary-date");
+
+const itineraries = {
+    "2026-02-18": [
+        { time: "4:00 PM", name: "Oakland Mall", address: "412 W 14 Mile Rd, Troy, MI 48083" },
+        { time: "5:30 PM", name: "Lao Pot", address: "32703 John R Rd, Madison Heights, MI 48071" },
+        { time: "7:00 PM", name: "Astro Lanes", address: "32388 John R Rd, Madison Heights, MI 48071" }
+    ]
+};
+
+for (let day = 1; day <= 28; day++) {
+    const dayEl = document.createElement("div");
+    dayEl.classList.add("day");
+    dayEl.innerText = day;
+
+    const dateKey = `2026-02-${day.toString().padStart(2,'0')}`;
+    if (itineraries[dateKey]) dayEl.classList.add("active");
+
+    dayEl.addEventListener("click", () => {
+        itineraryEl.innerHTML = "";
+        itineraryDateEl.innerText = `Itinerary for Feb ${day}, 2026`;
+        const list = itineraries[dateKey] || [];
+        if (list.length === 0) {
+            itineraryEl.innerHTML = "<p>No dates planned for this day.</p>";
+        } else {
+            list.forEach(item => {
+                const card = document.createElement("div");
+                card.classList.add("card");
+                card.innerHTML = `<div class="time">${item.time} – ${item.name}</div>
+                                  <div>${item.address}</div>`;
+                itineraryEl.appendChild(card);
+            });
+        }
+    });
+
+    calendarEl.appendChild(dayEl);
+}
+</script>
+
+</body>
+</html>
