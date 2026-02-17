@@ -83,13 +83,11 @@ h1 {
     transform: scale(1.05);
 }
 
-/* Darker highlight for planned dates */
 .day.has-date {
     background: rgba(139,0,0,0.75);
     font-weight: bold;
 }
 
-/* Clicked day highlight */
 .day.selected {
     outline: 3px solid white;
     transform: scale(1.1);
@@ -189,13 +187,14 @@ function createHeart() {
 }
 setInterval(createHeart, 800);
 
-// Date Data
+// Itinerary Data
 const itineraries = {
     "2026-02-18": [
         { time: "4:00 PM", name: "Oakland Mall", address: "412 W 14 Mile Rd, Troy, MI 48083" },
         { time: "5:30 PM", name: "Lao Pot", address: "32707 John R Rd, Madison Heights, MI 48071" },
         { time: "7:00 PM", name: "Astro Lanes", address: "32388 John R Rd, Madison Heights, MI 48071" }
     ],
+
     "2026-03-07": [
         { 
             time: "All Day ❤️", 
@@ -204,9 +203,25 @@ const itineraries = {
             comment: "Solving Crimes, buy board games, and something to possibly cook together"
         }
     ],
+
     "2026-03-21": [
-        { time: "4:00 PM", name: "Buffalo Wild Wings - Royal Oak", address: "500 S Main St, Royal Oak, MI 48067" },
-        { time: "6:00 PM", name: "The Rink at Royal Oak", address: "211 Williams St, Royal Oak, MI 48067" }
+        { 
+            time: "4:00 PM", 
+            name: "Emagine Royal Oak", 
+            address: "200 N Main St, Royal Oak, MI 48067",
+            comment: "Movie time is tentative depending on showtimes 🎬"
+        },
+        { 
+            time: "After Movie 🍗", 
+            name: "Buffalo Wild Wings - Royal Oak", 
+            address: "500 S Main St, Royal Oak, MI 48067"
+        },
+        { 
+            time: "After Dinner 🌅", 
+            name: "Sunset at the Park",
+            address: "TBD - Somewhere nice nearby",
+            comment: "If it gets dark, we’ll watch the sunset together 💕"
+        }
     ]
 };
 
