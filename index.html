@@ -32,10 +32,7 @@ header {
 }
 
 #subheader {
-    font-family: 'Poppins', sans-serif;
-    font-weight: 400;
     font-size: clamp(18px, 4vw, 26px);
-    line-height: 1.7;
     margin-top: 8px;
     opacity: 0.9;
 }
@@ -43,7 +40,6 @@ header {
 #datetime {
     font-size: 14px;
     opacity: 0.9;
-    font-family: 'Poppins', sans-serif;
 }
 
 .container {
@@ -58,15 +54,20 @@ header {
 
 h1 {
     text-align: center;
-    margin-bottom: 30px;
 }
 
-/* Calendar grid - responsive */
+.month-title {
+    text-align: center;
+    font-size: 22px;
+    margin: 30px 0 15px 0;
+    font-weight: 600;
+}
+
 .calendar {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(80px, 1fr));
     gap: 8px;
-    margin-bottom: 30px;
+    margin-bottom: 20px;
 }
 
 .day {
@@ -75,19 +76,25 @@ h1 {
     border-radius: 15px;
     text-align: center;
     cursor: pointer;
-    transition: transform 0.2s ease;
-    font-size: clamp(12px, 3vw, 16px);
+    transition: all 0.2s ease;
 }
 
 .day:hover {
     transform: scale(1.05);
 }
 
-.day.active {
-    background: rgba(255,105,180,0.6);
+/* Darker highlight for planned dates */
+.day.has-date {
+    background: rgba(139,0,0,0.75);
+    font-weight: bold;
 }
 
-/* Itinerary cards */
+/* Clicked day highlight */
+.day.selected {
+    outline: 3px solid white;
+    transform: scale(1.1);
+}
+
 .card {
     background: rgba(255,255,255,0.15);
     padding: 20px;
@@ -109,13 +116,14 @@ h1 {
 
 /* Floating hearts */
 .heart {
-    position: absolute;
+    position: fixed;
     width: 20px;
     height: 20px;
     background: red;
     transform: rotate(45deg);
     opacity: 0.7;
 }
+
 .heart:before,
 .heart:after {
     content: "";
@@ -125,9 +133,14 @@ h1 {
     background: red;
     border-radius: 50%;
 }
+
 .heart:before { top: -10px; left: 0; }
 .heart:after { left: 10px; top: 0; }
 
+@keyframes floatUp {
+    from { transform: translateY(0) rotate(45deg); opacity: 1; }
+    to { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
+}
 </style>
 </head>
 
@@ -140,11 +153,13 @@ h1 {
 </header>
 
 <div class="container">
-    <h1>February 2026 Calendar</h1>
+    <h1>February & March 2026 Calendar</h1>
 
-    <div class="calendar" id="calendar">
-        <!-- Days will be added by JS -->
-    </div>
+    <div class="month-title">February 2026</div>
+    <div class="calendar" id="february"></div>
+
+    <div class="month-title">March 2026</div>
+    <div class="calendar" id="march"></div>
 
     <div id="itinerary">
         <h2 id="itinerary-date">Select a day to see the itinerary</h2>
@@ -156,10 +171,8 @@ h1 {
 // Live Date & Time
 function updateDateTime() {
     const now = new Date();
-    const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-    const date = now.toLocaleDateString(undefined, options);
-    const time = now.toLocaleTimeString();
-    document.getElementById("datetime").innerText = date + " | " + time;
+    document.getElementById("datetime").innerText =
+        now.toLocaleDateString() + " | " + now.toLocaleTimeString();
 }
 setInterval(updateDateTime, 1000);
 updateDateTime();
@@ -170,61 +183,87 @@ function createHeart() {
     heart.classList.add('heart');
     heart.style.left = Math.random() * window.innerWidth + 'px';
     heart.style.top = window.innerHeight + 'px';
-    heart.style.position = 'fixed';
-    heart.style.animation = `floatUp 6s linear forwards`;
+    heart.style.animation = "floatUp 6s linear forwards";
     document.body.appendChild(heart);
     setTimeout(() => heart.remove(), 6000);
 }
 setInterval(createHeart, 800);
 
-const style = document.createElement('style');
-style.innerHTML = `
-@keyframes floatUp {
-    from { transform: translateY(0) rotate(45deg); opacity: 1; }
-    to { transform: translateY(-100vh) rotate(45deg); opacity: 0; }
-}`;
-document.head.appendChild(style);
-
-// Generate calendar days
-const calendarEl = document.getElementById("calendar");
-const itineraryEl = document.getElementById("itinerary-cards");
-const itineraryDateEl = document.getElementById("itinerary-date");
-
+// Date Data
 const itineraries = {
     "2026-02-18": [
         { time: "4:00 PM", name: "Oakland Mall", address: "412 W 14 Mile Rd, Troy, MI 48083" },
         { time: "5:30 PM", name: "Lao Pot", address: "32707 John R Rd, Madison Heights, MI 48071" },
         { time: "7:00 PM", name: "Astro Lanes", address: "32388 John R Rd, Madison Heights, MI 48071" }
+    ],
+    "2026-03-07": [
+        { 
+            time: "All Day ❤️", 
+            name: "My House", 
+            address: "8527 W Seven Mile Rd, Detroit, MI 48221",
+            comment: "Solving Crimes, buy board games, and something to possibly cook together"
+        }
+    ],
+    "2026-03-21": [
+        { time: "4:00 PM", name: "Buffalo Wild Wings - Royal Oak", address: "500 S Main St, Royal Oak, MI 48067" },
+        { time: "6:00 PM", name: "The Rink at Royal Oak", address: "211 Williams St, Royal Oak, MI 48067" }
     ]
 };
 
-for (let day = 1; day <= 28; day++) {
-    const dayEl = document.createElement("div");
-    dayEl.classList.add("day");
-    dayEl.innerText = day;
+let selectedDay = null;
 
-    const dateKey = `2026-02-${day.toString().padStart(2,'0')}`;
-    if (itineraries[dateKey]) dayEl.classList.add("active");
+function generateCalendar(containerId, month, year, days) {
+    const container = document.getElementById(containerId);
 
-    dayEl.addEventListener("click", () => {
-        itineraryEl.innerHTML = "";
-        itineraryDateEl.innerText = `Itinerary for Feb ${day}, 2026`;
-        const list = itineraries[dateKey] || [];
-        if (list.length === 0) {
-            itineraryEl.innerHTML = "<p>No dates planned for this day.</p>";
-        } else {
-            list.forEach(item => {
-                const card = document.createElement("div");
-                card.classList.add("card");
-                card.innerHTML = `<div class="time">${item.time} – ${item.name}</div>
-                                  <div>${item.address}</div>`;
-                itineraryEl.appendChild(card);
-            });
+    for (let day = 1; day <= days; day++) {
+        const dayEl = document.createElement("div");
+        dayEl.classList.add("day");
+        dayEl.innerText = day;
+
+        const dateKey = `${year}-${String(month).padStart(2,'0')}-${String(day).padStart(2,'0')}`;
+
+        if (itineraries[dateKey]) {
+            dayEl.classList.add("has-date");
         }
-    });
 
-    calendarEl.appendChild(dayEl);
+        dayEl.addEventListener("click", () => {
+
+            if (selectedDay) selectedDay.classList.remove("selected");
+            dayEl.classList.add("selected");
+            selectedDay = dayEl;
+
+            const itineraryEl = document.getElementById("itinerary-cards");
+            const itineraryDateEl = document.getElementById("itinerary-date");
+            itineraryEl.innerHTML = "";
+
+            const monthName = new Date(year, month - 1).toLocaleString('default', { month: 'long' });
+            itineraryDateEl.innerText = `Itinerary for ${monthName} ${day}, ${year}`;
+
+            const events = itineraries[dateKey] || [];
+
+            if (events.length === 0) {
+                itineraryEl.innerHTML = "<p>No dates planned for this day.</p>";
+            } else {
+                events.forEach(event => {
+                    const card = document.createElement("div");
+                    card.classList.add("card");
+                    card.innerHTML = `
+                        <div class="time">${event.time} – ${event.name}</div>
+                        <div>${event.address}</div>
+                        ${event.comment ? `<div style="margin-top:8px;font-style:italic;">${event.comment}</div>` : ""}
+                    `;
+                    itineraryEl.appendChild(card);
+                });
+            }
+        });
+
+        container.appendChild(dayEl);
+    }
 }
+
+generateCalendar("february", 2, 2026, 28);
+generateCalendar("march", 3, 2026, 31);
+
 </script>
 
 </body>
